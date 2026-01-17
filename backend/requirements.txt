@@ -24,4 +24,4 @@ django-environ==0.10.0
 
 django-extensions==3.2.3
 
-gunicorn==22.1.0
+gunicorn==22.0.0
