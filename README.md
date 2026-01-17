@@ -1,6 +1,6 @@
 # Company Registration & Management Platform
 
-A full-stack web application for secure company registration, management, and dashboard analytics with comprehensive settings page.
+A full-stack web application for secure company registration, management and dashboard analytics with comprehensive settings page.
 
 **Documentation:** See [BACKEND_FRONTEND_INTEGRATION.md](./BACKEND_FRONTEND_INTEGRATION.md) for complete technical analysis  
 **Quick Start:** See [QUICK_REFERENCE.md](./QUICK_REFERENCE.md)
