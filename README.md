@@ -2,8 +2,8 @@
 
 A full-stack web application for secure company registration, management and dashboard analytics with comprehensive settings page.
 
-**Documentation:** See [BACKEND_FRONTEND_INTEGRATION.md](./BACKEND_FRONTEND_INTEGRATION.md) for complete technical analysis  
-**Quick Start:** See [QUICK_REFERENCE.md](./QUICK_REFERENCE.md)
+**Documentation:** See [ARCHITECTURE_DIAGRAM.md](./ARCHITECTURE_DIAGRAM.md) for complete technical analysis  
+**Quick Start:** See [Demo Video](./QUICK_REFERENCE.md)
 
 ## ✨ Key Features
 
@@ -85,55 +85,55 @@ A full-stack web application for secure company registration, management and das
 
 ```
 company-registration/
-├── frontend/                    # React application
-│   ├── public/                 # Static assets
+├── frontend/                   
+│   ├── public/                 
 │   ├── src/
 │   │   ├── components/
-│   │   │   ├── auth/           # Login, Register forms
-│   │   │   ├── company/        # Company-related components
-│   │   │   └── common/         # Reusable components (ImageUpload, etc)
+│   │   │   ├── auth/          
+│   │   │   ├── company/       
+│   │   │   └── common/         
 │   │   ├── pages/
 │   │   │   ├── LoginPage.jsx
 │   │   │   ├── RegisterPage.jsx
 │   │   │   ├── CompanyRegistrationPage.jsx
 │   │   │   ├── DashboardPage.jsx
-│   │   │   └── SettingsPage.jsx  # ⭐ Main settings component
+│   │   │   └── SettingsPage.jsx  
 │   │   ├── services/
-│   │   │   ├── api.js          # Axios instance + interceptors
-│   │   │   ├── authService.js  # Auth API calls
-│   │   │   └── companyService.js # Company API calls
+│   │   │   ├── api.js          
+│   │   │   ├── authService.js  
+│   │   │   └── companyService.js 
 │   │   ├── store/
-│   │   │   ├── authSlice.js    # Redux auth state
-│   │   │   ├── store.js        # Redux store config
+│   │   │   ├── authSlice.js    
+│   │   │   ├── store.js        
 │   │   │   └── slices/
-│   │   │       └── companySlice.js # Redux company state
+│   │   │       └── companySlice.js 
 │   │   ├── utils/
 │   │   │   ├── constants.js
 │   │   │   └── validations.js
-│   │   └── App.jsx             # Main app component
+│   │   └── App.jsx             
 │   ├── .env.example
 │   ├── vite.config.js
 │   └── package.json
 │
-├── backened/                    # Django application
-│   ├── accounts/               # User authentication
-│   │   ├── models.py          # CustomUser model
+├── backened/                    
+│   ├── accounts/               
+│   │   ├── models.py          
 │   │   ├── views.py
 │   │   ├── serializers.py
 │   │   └── migrations/
-│   ├── companies/              # Company management
-│   │   ├── models.py          # CompanyProfile model
+│   ├── companies/              
+│   │   ├── models.py         
 │   │   ├── views.py
 │   │   ├── serializers.py
 │   │   └── migrations/
-│   ├── api/                    # REST API endpoints
-│   │   ├── views.py           # ✅ UpdateProfileView, ChangePasswordView, DeleteAccountView (NEW)
-│   │   ├── urls.py            # ✅ API routes (3 new endpoints)
+│   ├── api/                   
+│   │   ├── views.py          
+│   │   ├── urls.py           
 │   │   ├── serializers.py
 │   │   └── services/
 │   │       ├── cloudinary_service.py
 │   │       └── firebase_service.py
-│   ├── backened/              # Django settings
+│   ├── backened/              
 │   │   ├── settings.py
 │   │   ├── urls.py
 │   │   ├── asgi.py
@@ -141,24 +141,15 @@ company-registration/
 │   ├── manage.py
 │   ├── requirements.txt
 │   ├── .env.example
-│   └── env/                   # Virtual environment
+│   └── env/                  
 │
-├── BACKEND_FRONTEND_INTEGRATION.md  # 650+ line technical analysis
-├── SETTINGS_INTEGRATION_COMPLETE.md # Feature documentation
-├── COMPLETE_CHANGE_SUMMARY.md       # All changes listed
-├── QUICK_REFERENCE.md              # Quick start guide
-├── DEPLOYMENT.md                   # Deployment instructions
-├── vercel.json                     # Vercel config
-└── README.md                       # This file
+├── ARCHITECTURE_DIAGRAM.md                 
+├── DEPLOYMENT.md                   
+├── vercel.json                    
+└── README.md                      
 ```
 
 ## 🚀 Quick Start
-
-### Prerequisites
-- Python 3.8+
-- Node.js 18+
-- PostgreSQL 12+ (or SQLite for development)
-- Git
 
 ### Backend Setup (Django)
 
