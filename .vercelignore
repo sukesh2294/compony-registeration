@@ -1,0 +1,11 @@
+# Vercel ignore file
+node_modules/
+.git/
+.env
+.env.local
+venv/
+backend/env/
+backend/__pycache__/
+frontend/node_modules/
+*.pyc
+.pytest_cache/
