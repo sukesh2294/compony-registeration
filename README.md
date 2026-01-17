@@ -115,7 +115,7 @@ company-registration/
 │   ├── vite.config.js
 │   └── package.json
 │
-├── backened/                    # Django application
+├── backend/                    # Django application
 │   ├── accounts/               # User authentication
 │   │   ├── models.py          # CustomUser model
 │   │   ├── views.py
@@ -133,7 +133,7 @@ company-registration/
 │   │   └── services/
 │   │       ├── cloudinary_service.py
 │   │       └── firebase_service.py
-│   ├── backened/              # Django settings
+│   ├── backend/              # Django settings
 │   │   ├── settings.py
 │   │   ├── urls.py
 │   │   ├── asgi.py
@@ -164,7 +164,7 @@ company-registration/
 
 ```bash
 # Navigate to backend
-cd backened
+cd backend
 
 # Create virtual environment
 python -m venv env
@@ -497,7 +497,7 @@ See [DEPLOYMENT.md](./DEPLOYMENT.md) for detailed instructions.
 
 ### Backend
 ```bash
-cd backened
+cd backend
 
 # Start development server
 python manage.py runserver
