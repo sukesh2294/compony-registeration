@@ -32,9 +32,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = env('DJANGO_SECRET_KEY', default='your-secret-key-here')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env.bool('DEBUG', default=False)
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=[
+    'localhost',
+    '127.0.0.1',
+    'compony-registeration-backend.onrender.com',
+    'compony-registeration-frontend.vercel.app',
+])
 
 
 # Application definition
@@ -170,14 +175,15 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # CORS Settings
-CORS_ALLOWED_ORIGINS = [
+CORS_ALLOWED_ORIGINS = env.list('CORS_ALLOWED_ORIGINS', default=[
     "http://localhost:5173",  # React frontend Vite
     "http://127.0.0.1:5173",
     "http://localhost:3000",  # Alternative port
     "http://127.0.0.1:3000",
     "http://localhost:8000",  # Allow same origin
     "http://127.0.0.1:8000",
-]
+    "https://compony-registeration-frontend.vercel.app",  # Production frontend
+])
 
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_HEADERS = [
