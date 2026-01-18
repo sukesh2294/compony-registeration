@@ -104,9 +104,12 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': env('DB_NAME', default='company_db'),
         'USER': env('DB_USER', default='postgres'),
-        'PASSWORD': env('DB_PASSWORD',default='Sukesh6502@'),
+        'PASSWORD': env('DB_PASSWORD', default=''),  # MUST be set in production
         'HOST': env('DB_HOST', default='localhost'),
         'PORT': env('DB_PORT', default='5432'),
+        'OPTIONS': {
+            'sslmode': 'require',  # Force SSL for production databases
+        },
     }
 }
 
@@ -212,14 +215,15 @@ CLOUDINARY_API_SECRET = env('CLOUDINARY_API_SECRET', default='')
 FIREBASE_API_KEY = env('FIREBASE_API_KEY', default='')
 FIREBASE_AUTH_DOMAIN = env('FIREBASE_AUTH_DOMAIN', default='')
 
-# DEBUG: Verify .env loading
-print("🔍 .env DEBUG START")
-print(f"🔍 DJANGO_SECRET_KEY loaded: {bool(env('DJANGO_SECRET_KEY'))}")
-print(f"🔍 FIREBASE_API_KEY loaded: {bool(FIREBASE_API_KEY)}")
-if FIREBASE_API_KEY:
-    print(f"🔍 FIREBASE_API_KEY value: '{FIREBASE_API_KEY[:30]}...'")
-print(f"🔍 DB_PASSWORD loaded: {bool(env('DB_PASSWORD'))}")
-print("🔍 .env DEBUG END")
+# Production security settings
+if not DEBUG:
+    # Security settings for production
+    SECURE_SSL_REDIRECT = False  # Render handles SSL
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_BROWSER_XSS_FILTER = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    X_FRAME_OPTIONS = 'DENY'
 
 
 

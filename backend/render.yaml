@@ -1,0 +1,29 @@
+services:
+  - type: web
+    name: compony-registeration-backend
+    env: python
+    buildCommand: bash build.sh
+    startCommand: gunicorn backend.wsgi:application --bind 0.0.0.0:$PORT --timeout 120 --workers 2
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: DJANGO_SECRET_KEY
+        sync: false
+      - key: DEBUG
+        value: false
+      - key: DB_NAME
+        sync: false
+      - key: DB_USER
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: DB_HOST
+        sync: false
+      - key: DB_PORT
+        value: 5432
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
