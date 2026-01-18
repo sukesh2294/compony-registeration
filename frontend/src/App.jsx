@@ -16,16 +16,26 @@ import AnalyticsPage from "./pages/AnalyticsPage";
 // API 
 import axios from "axios";
 
-
+// Get API URL based on environment
+// Note: Don't set axios.defaults.baseURL as it affects all axios instances
+// Each axios instance should be configured separately (see api/index.js)
+const isLocalhost = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
 const API_URL =
-  window.location.hostname === "localhost"
-    ? import.meta.env.VITE_API_URL_LOCAL
-    : import.meta.env.VITE_API_URL_PROD;
-    
-axios.defaults.baseURL = API_URL;
-axios.defaults.headers.common["Content-Type"] = "application/json";
+  isLocalhost
+    ? import.meta.env.VITE_API_URL_LOCAL || "http://localhost:8000"
+    : import.meta.env.VITE_API_URL_PROD || import.meta.env.VITE_API_URL;
 
-console.log("📡 API Base URL:", API_URL);
+// Only set defaults if API_URL is valid (for backwards compatibility)
+// But prefer using configured instances from api/index.js
+if (API_URL) {
+  axios.defaults.baseURL = API_URL;
+  axios.defaults.headers.common["Content-Type"] = "application/json";
+} else if (!isLocalhost) {
+  console.error("⚠️ Warning: API_URL is not set in App.jsx");
+  console.error("⚠️ Some axios calls might fail. Set VITE_API_URL_PROD environment variable.");
+}
+
+console.log("📡 App.jsx API Base URL:", API_URL || "NOT SET");
 
 function App() {
   const [isBackendConnected, setIsBackendConnected] = useState(false);

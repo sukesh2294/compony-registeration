@@ -1,19 +1,45 @@
 import axios from "axios";
 
 // Get API URL based on environment
-const API_URL =
-  window.location.hostname === "localhost"
-    ? import.meta.env.VITE_API_URL_LOCAL || "http://localhost:8000"
-    : import.meta.env.VITE_API_URL_PROD || import.meta.env.VITE_API_URL;
+// Note: Vite environment variables are replaced at BUILD TIME, not runtime
+// So VITE_API_URL_PROD must be set before building/deploying
+const isLocalhost = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+
+const API_URL = isLocalhost
+  ? import.meta.env.VITE_API_URL_LOCAL || "http://localhost:8000"
+  : import.meta.env.VITE_API_URL_PROD || import.meta.env.VITE_API_URL;
+
+// Log all environment variables for debugging
+console.log("🔍 Environment Debug:", {
+  hostname: window.location.hostname,
+  isLocalhost: isLocalhost,
+  VITE_API_URL_LOCAL: import.meta.env.VITE_API_URL_LOCAL,
+  VITE_API_URL_PROD: import.meta.env.VITE_API_URL_PROD,
+  VITE_API_URL: import.meta.env.VITE_API_URL,
+  resolved_API_URL: API_URL || "UNDEFINED - This will cause errors!"
+});
 
 // Warn if API URL is not set in production
-if (!API_URL && window.location.hostname !== "localhost") {
-  console.error("⚠️ VITE_API_URL_PROD is not set! Please set it in your deployment environment variables.");
+if (!API_URL && !isLocalhost) {
+  console.error("⚠️ CRITICAL: VITE_API_URL_PROD is not set!");
+  console.error("⚠️ This environment variable must be set in your deployment platform BEFORE building.");
+  console.error("⚠️ Steps to fix:");
+  console.error("   1. Go to your deployment platform (Vercel/Netlify/etc)");
+  console.error("   2. Add environment variable: VITE_API_URL_PROD");
+  console.error("   3. Value: https://compony-registeration-backend.onrender.com");
+  console.error("   4. Redeploy your frontend");
 }
 
 // Create axios instance
+// Important: If API_URL is undefined, we should NOT create an instance with empty baseURL
+// as it will make relative requests to the frontend domain
+if (!API_URL && !isLocalhost) {
+  console.error("❌ Cannot create API instance: VITE_API_URL_PROD is not configured!");
+  console.error("❌ API calls will fail. Please set VITE_API_URL_PROD and redeploy.");
+}
+
 const api = axios.create({
-  baseURL: API_URL || "",
+  baseURL: API_URL || (isLocalhost ? "http://localhost:8000" : ""),
   headers: {
     "Content-Type": "application/json",
   },
@@ -21,23 +47,32 @@ const api = axios.create({
 });
 
 // Log API URL for debugging (always, not just in dev)
-console.log("📡 API Base URL:", API_URL || "NOT SET - Please configure VITE_API_URL_PROD");
+console.log("📡 API Base URL:", API_URL || (isLocalhost ? "http://localhost:8000 (default)" : "NOT SET - API calls will fail!"));
 console.log("🌐 Current Hostname:", window.location.hostname);
+console.log("🔗 Full API URL will be:", API_URL ? `${API_URL}/api/auth/login/` : "Cannot determine - VITE_API_URL_PROD not set");
 
 // Add request interceptor to add JWT token and log requests
 api.interceptors.request.use(
   (config) => {
     // Prevent API calls if API_URL is not set in production
-    if (!API_URL && window.location.hostname !== "localhost") {
+    if (!API_URL && !isLocalhost) {
       const error = new Error("API_URL_NOT_CONFIGURED");
-      error.message = "VITE_API_URL_PROD is not configured. Please set it in your deployment environment variables.";
+      error.message = "VITE_API_URL_PROD is not configured. Please set it in your deployment environment variables BEFORE building.";
       error.apiUrl = API_URL;
       console.error("❌ API Request Blocked:", {
         reason: "API_URL not set in production",
         hostname: window.location.hostname,
-        message: "Set VITE_API_URL_PROD environment variable"
+        configBaseURL: config.baseURL,
+        fullURL: config.baseURL ? `${config.baseURL}${config.url}` : config.url,
+        message: "Set VITE_API_URL_PROD environment variable and REDEPLOY"
       });
       return Promise.reject(error);
+    }
+    
+    // Also check if baseURL is empty string (shouldn't happen but safety check)
+    if (!config.baseURL && !isLocalhost) {
+      console.error("⚠️ Warning: Request baseURL is empty! This will cause relative requests.");
+      console.error("⚠️ Request config:", config);
     }
     
     const token = localStorage.getItem("access_token");
