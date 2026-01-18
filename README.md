@@ -80,7 +80,7 @@ A full-stack web application for secure company registration, management and das
 - **Vercel** - Frontend hosting 
 - **Render** - Backend & Database hosting
 - **Cloudinary** - Image CDN
--**Firebase** - to store email & password hashing 
+- **Firebase** - to store email & password hashing 
 
 ## 📁 Project Structure
 
