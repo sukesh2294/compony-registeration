@@ -94,41 +94,86 @@ api.interceptors.request.use(
 // Add response interceptor to handle token refresh and log errors
 api.interceptors.response.use(
   (response) => {
-    // Check if we got HTML instead of JSON (means request went to frontend instead of backend)
+    // Check if we got HTML instead of JSON
     const contentType = response.headers["content-type"] || "";
+    const status = response.status || 200;
+    
+    // If we got HTML response:
+    // - Status 500 with HTML = Backend server error (Django error page)
+    // - Status 200/404 with HTML = Request went to wrong domain (frontend)
     if (contentType.includes("text/html") && typeof response.data === "string" && response.data.includes("<!doctype html>")) {
-      console.error("⚠️ CRITICAL: Received HTML instead of JSON!");
-      console.error("This means the API request went to the frontend domain instead of backend.");
-      console.error("📡 API_URL:", API_URL);
-      console.error("🔗 Request URL:", response.config.url);
-      console.error("🌐 Full URL:", response.config.baseURL + response.config.url);
-      console.error("❌ SOLUTION: Set VITE_API_URL_PROD environment variable in your deployment platform!");
-      
-      // Create a more descriptive error
-      const error = new Error("API_URL_NOT_CONFIGURED");
-      error.isHtmlResponse = true;
-      error.apiUrl = API_URL;
-      error.requestUrl = response.config.url;
-      // Mark this response as handled to prevent loops
-      error._isHandled = true;
-      throw error;
+      if (status === 500 || status >= 500) {
+        // This is a backend server error, not a configuration issue
+        console.error("⚠️ Backend Server Error (500): Received HTML error page instead of JSON");
+        console.error("📡 Backend URL:", API_URL);
+        console.error("🔗 Request URL:", response.config.url);
+        console.error("🌐 Full URL:", response.config.baseURL + response.config.url);
+        console.error("❌ SOLUTION: Check your backend server logs for the actual error.");
+        console.error("   - Database connection issues?");
+        console.error("   - Missing environment variables?");
+        console.error("   - Unhandled exception in Django code?");
+        
+        const error = new Error("BACKEND_SERVER_ERROR");
+        error.isHtmlResponse = true;
+        error.isBackendError = true;
+        error.status = status;
+        error.apiUrl = API_URL;
+        error.requestUrl = response.config.url;
+        error._isHandled = true;
+        throw error;
+      } else {
+        // Status 200/404 with HTML means request went to wrong domain
+        console.error("⚠️ CRITICAL: Received HTML instead of JSON!");
+        console.error("This means the API request went to the frontend domain instead of backend.");
+        console.error("📡 API_URL:", API_URL);
+        console.error("🔗 Request URL:", response.config.url);
+        console.error("🌐 Full URL:", response.config.baseURL + response.config.url);
+        console.error("❌ SOLUTION: Set VITE_API_URL_PROD environment variable in your deployment platform!");
+        
+        const error = new Error("API_URL_NOT_CONFIGURED");
+        error.isHtmlResponse = true;
+        error.apiUrl = API_URL;
+        error.requestUrl = response.config.url;
+        error._isHandled = true;
+        throw error;
+      }
     }
     return response;
   },
   async (error) => {
     const originalRequest = error.config;
     
-    // Check if response is HTML (means we hit frontend instead of backend)
+    // Check if response is HTML 
     if (error.response && error.response.data && typeof error.response.data === "string" && error.response.data.includes("<!doctype html>")) {
-      console.error("⚠️ CRITICAL: Received HTML instead of JSON!");
-      console.error("This means the API request went to the frontend domain instead of backend.");
-      console.error("📡 API_URL:", API_URL || "NOT SET");
-      console.error("🔗 Request URL:", originalRequest?.url);
-      console.error("🌐 Full URL:", originalRequest ? (originalRequest.baseURL || "MISSING") + originalRequest.url : "N/A");
-      console.error("❌ SOLUTION: Set VITE_API_URL_PROD environment variable in your deployment platform!");
+      const status = error.response.status || 0;
       
-      error.isHtmlResponse = true;
-      error.apiUrlNotSet = !API_URL;
+      if (status === 500 || status >= 500) {
+        // Backend server error - Django error page
+        console.error("⚠️ Backend Server Error (500): Received HTML error page instead of JSON");
+        console.error("📡 Backend URL:", API_URL || "NOT SET");
+        console.error("🔗 Request URL:", originalRequest?.url);
+        console.error("🌐 Full URL:", originalRequest ? (originalRequest.baseURL || "MISSING") + originalRequest.url : "N/A");
+        console.error("❌ This is a backend server error. Check backend logs for details:");
+        console.error("   - Database connection issues?");
+        console.error("   - Missing environment variables?");
+        console.error("   - Unhandled exception in Django code?");
+        
+        error.isHtmlResponse = true;
+        error.isBackendError = true;
+        error.status = status;
+        error.apiUrl = API_URL;
+      } else {
+        // Other HTML responses - likely wrong domain
+        console.error("⚠️ CRITICAL: Received HTML instead of JSON!");
+        console.error("This means the API request went to the frontend domain instead of backend.");
+        console.error("📡 API_URL:", API_URL || "NOT SET");
+        console.error("🔗 Request URL:", originalRequest?.url);
+        console.error("🌐 Full URL:", originalRequest ? (originalRequest.baseURL || "MISSING") + originalRequest.url : "N/A");
+        console.error("❌ SOLUTION: Set VITE_API_URL_PROD environment variable in your deployment platform!");
+        
+        error.isHtmlResponse = true;
+        error.apiUrlNotSet = !API_URL;
+      }
     }
     
     // Log error details for debugging

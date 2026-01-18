@@ -393,8 +393,17 @@ export default function LoginPage() {
       console.error("Login Error:", error);
       let errorMessage = "Login failed. Please try again.";
       
+      // Handle backend server errors (500) with HTML response
+      if (error.isBackendError || (error.response?.status >= 500 && error.response?.data && typeof error.response.data === "string" && error.response.data.includes("<!doctype html>"))) {
+        errorMessage = "Server Error (500): Backend encountered an internal error.\n\n" +
+          "Please try again later or contact support.\n" +
+          "Check backend server logs for details.";
+        toast.error(errorMessage, { autoClose: 8000 });
+        return;
+      }
+      
       // Handle HTML response (API URL not configured)
-      if (error.isHtmlResponse || (error.response?.data && typeof error.response.data === "string" && error.response.data.includes("<!doctype html>"))) {
+      if (error.isHtmlResponse && !error.isBackendError) {
         errorMessage = "API Configuration Error: VITE_API_URL_PROD is not set!\n\n" +
           "Please configure the backend API URL in your deployment platform:\n" +
           "1. Go to your deployment settings (Vercel/Netlify/etc)\n" +

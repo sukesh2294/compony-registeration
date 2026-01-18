@@ -227,16 +227,37 @@ export default function RegisterPage() {
         }, 2000);
       }
     } catch (error) {
+      console.error("Registration Error:", error);
+      
+      // Handle backend server errors (500) with HTML response
+      if (error.isBackendError || (error.response?.status >= 500 && error.response?.data && typeof error.response.data === "string" && error.response.data.includes("<!doctype html>"))) {
+        setErrors({ 
+          _general: "Server error (500): Backend encountered an internal error. Please try again later or contact support. Check backend logs for details."
+        });
+        console.error("Backend Server Error - Check backend logs for details");
+        setLoading(false);
+        return;
+      }
+      
+      // Handle HTML response (configuration issue)
+      if (error.isHtmlResponse && !error.isBackendError) {
+        setErrors({ 
+          _general: "API Configuration Error: VITE_API_URL_PROD is not set. Please check deployment settings."
+        });
+        setLoading(false);
+        return;
+      }
+      
       // Handle API errors
       if (error.response?.data) {
         const apiErrors = error.response.data;
         
         // Map backend errors to form fields
         const fieldErrors = {};
-        if (apiErrors.email) fieldErrors.email = apiErrors.email;
-        if (apiErrors.mobile_no) fieldErrors.mobile_no = apiErrors.mobile_no;
-        if (apiErrors.password) fieldErrors.password = apiErrors.password;
-        if (apiErrors.full_name) fieldErrors.full_name = apiErrors.full_name;
+        if (apiErrors.email) fieldErrors.email = Array.isArray(apiErrors.email) ? apiErrors.email[0] : apiErrors.email;
+        if (apiErrors.mobile_no) fieldErrors.mobile_no = Array.isArray(apiErrors.mobile_no) ? apiErrors.mobile_no[0] : apiErrors.mobile_no;
+        if (apiErrors.password) fieldErrors.password = Array.isArray(apiErrors.password) ? apiErrors.password[0] : apiErrors.password;
+        if (apiErrors.full_name) fieldErrors.full_name = Array.isArray(apiErrors.full_name) ? apiErrors.full_name[0] : apiErrors.full_name;
         
         setErrors(fieldErrors);
         
@@ -246,9 +267,20 @@ export default function RegisterPage() {
             ...prev,
             _general: apiErrors.message
           }));
+        } else if (apiErrors.errors && typeof apiErrors.errors === "object") {
+          // Handle nested errors object
+          const firstError = Object.values(apiErrors.errors)[0];
+          if (firstError) {
+            setErrors(prev => ({
+              ...prev,
+              _general: Array.isArray(firstError) ? firstError[0] : firstError
+            }));
+          }
         }
+      } else if (error.code === "ERR_NETWORK" || error.message === "Network Error") {
+        setErrors({ _general: "Network error. Please check your connection and try again." });
       } else {
-        setErrors({ _general: "Network error. Please try again." });
+        setErrors({ _general: error.message || "Registration failed. Please try again." });
       }
     } finally {
       setLoading(false);
