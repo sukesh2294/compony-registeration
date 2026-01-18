@@ -3,7 +3,8 @@
 A full-stack web application for secure company registration, management and dashboard analytics with comprehensive settings page.
 
 **Documentation:** See [ARCHITECTURE_DIAGRAM](./ARCHITECTURE_DIAGRAM.md) for complete technical analysis  
-**Quick Start:** See [Demo Video](https://drive.google.com/file/d/1jq_LOo2RH_b-4tvCgBXOWd67UsR3rreu/view?usp=sharing)
+**Quick Start:** See [Live Demo](https://compony-registeration-frontend.vercel.app/settings)
+                 See [Demo Video](https://drive.google.com/file/d/1jq_LOo2RH_b-4tvCgBXOWd67UsR3rreu/view?usp=sharing)
 
 ## ✨ Key Features
 
