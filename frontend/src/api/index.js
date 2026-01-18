@@ -7,7 +7,7 @@ const isLocalhost = window.location.hostname === "localhost" || window.location.
 
 const API_URL = isLocalhost
   ? import.meta.env.VITE_API_URL_LOCAL || "http://localhost:8000"
-  : import.meta.env.VITE_API_URL_PROD || import.meta.env.VITE_API_URL;
+  : import.meta.env.VITE_API_URL_PROD ;
 
 // Log all environment variables for debugging
 console.log("🔍 Environment Debug:", {
