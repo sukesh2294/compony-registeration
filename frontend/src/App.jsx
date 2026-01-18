@@ -38,25 +38,39 @@ if (API_URL) {
 console.log("📡 App.jsx API Base URL:", API_URL || "NOT SET");
 
 function App() {
-  const [isBackendConnected, setIsBackendConnected] = useState(false);
-  const [loading, setLoading] = useState(true);
+  // Only check backend connection in development
+  // In production, let the app render and handle errors gracefully
+  const [isBackendConnected, setIsBackendConnected] = useState(isLocalhost ? false : true);
+  const [loading, setLoading] = useState(isLocalhost);
 
   useEffect(() => {
+    // Only check backend connection in localhost/development
+    // In production, skip this check to avoid blocking the app
+    if (!isLocalhost) {
+      setLoading(false);
+      return;
+    }
+
     const testBackendConnection = async () => {
       try {
-        const response = await axios.get("/");
-        console.log("Backend response:", response.data);
+        // Use the configured API instance or direct axios with API_URL
+        const testUrl = API_URL ? `${API_URL}/` : "/";
+        const response = await axios.get(testUrl, { timeout: 5000 });
+        console.log("✅ Backend connection successful:", response.data);
         setIsBackendConnected(true);
       } catch (error) {
-        console.error("Backend connection failed:", error);
-        setIsBackendConnected(false);
+        console.error("⚠️ Backend connection failed (this is OK for development):", error.message);
+        // Don't block the app - just log the error
+        // The login page will handle API errors gracefully
+        setIsBackendConnected(true); // Allow app to render anyway
       } finally {
         setLoading(false);
       }
     };
 
     testBackendConnection();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Only run once on mount
 
   if (loading) {
     return (
@@ -72,7 +86,9 @@ function App() {
     );
   }
 
-  if (!isBackendConnected) {
+  // Don't block app in production - let it render and handle errors in components
+  // Only show error in development if backend is clearly not running
+  if (!isBackendConnected && isLocalhost) {
     return (
       <div style={{
         display: "flex",
@@ -80,11 +96,27 @@ function App() {
         alignItems: "center",
         height: "100vh",
         flexDirection: "column",
-        textAlign: "center"
+        textAlign: "center",
+        padding: "20px"
       }}>
-        <h2 style={{ color: "red" }}>❌ Backend Connection Failed</h2>
-        <p>Make sure Django backend is running on {API_URL}</p>
+        <h2 style={{ color: "orange" }}>⚠️ Backend Not Connected (Development)</h2>
+        <p>Make sure Django backend is running on {API_URL || "http://localhost:8000"}</p>
         <p>Run: <code>python manage.py runserver</code></p>
+        <button 
+          onClick={() => setIsBackendConnected(true)}
+          style={{
+            marginTop: "20px",
+            padding: "10px 20px",
+            fontSize: "16px",
+            cursor: "pointer",
+            backgroundColor: "#667eea",
+            color: "white",
+            border: "none",
+            borderRadius: "8px"
+          }}
+        >
+          Continue Anyway
+        </button>
       </div>
     );
   }

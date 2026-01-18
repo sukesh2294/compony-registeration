@@ -109,6 +109,8 @@ api.interceptors.response.use(
       error.isHtmlResponse = true;
       error.apiUrl = API_URL;
       error.requestUrl = response.config.url;
+      // Mark this response as handled to prevent loops
+      error._isHandled = true;
       throw error;
     }
     return response;
