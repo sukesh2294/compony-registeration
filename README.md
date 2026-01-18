@@ -233,9 +233,9 @@ Admin Panel: http://127.0.0.1:8000/admin/
 ```
 POST   /api/auth/register/             - Register new user
 POST   /api/auth/login/                - User login
-PATCH  /api/auth/profile/              - Update user email/phone ⭐ NEW
-POST   /api/auth/change-password/      - Change password ⭐ NEW
-POST   /api/auth/delete-account/       - Delete account ⭐ NEW
+PATCH  /api/auth/profile/              - Update user email/phone
+POST   /api/auth/change-password/      - Change password 
+POST   /api/auth/delete-account/       - Delete account
 POST   /api/token/refresh/             - Refresh JWT token
 ```
 
@@ -244,8 +244,8 @@ POST   /api/token/refresh/             - Refresh JWT token
 POST   /api/company/register/          - Create company profile
 GET    /api/company/profile/           - Get user's company profile
 PUT    /api/company/profile/           - Update company profile (full)
-PATCH  /api/company/profile/           - Update company profile (partial) ⭐ NEW
-POST   /api/company/upload-logo/       - Upload company logo
+PATCH  /api/company/profile/           - Update company profile
+POST   /api/company/upload-logo/       - Upload company logo 
 POST   /api/company/upload-banner/     - Upload company banner
 ```
 
@@ -414,61 +414,17 @@ psycopg2-binary==2.9.x  # PostgreSQL adapter
 ## 🚀 Deployment
 
 ### Deploy Frontend to Vercel
-```bash
-# Push to GitHub
-git push origin main
 
-# In Vercel Dashboard:
-1. Import from GitHub: select this repository
-2. Configure environment variables (VITE_API_URL)
-3. Click Deploy
-4. Live at your-domain.vercel.app
-```
-
-### Deploy Backend
-
-**Option 1: Railway.app (Recommended)**
-```
-1. Sign up at railway.app
-2. Create new project
-3. Connect GitHub repo
-4. Add PostgreSQL database
-5. Set environment variables
-6. Deploy
-```
-
-**Option 2: Heroku + Heroku Postgres**
-```bash
-heroku create your-app-name
-heroku addons:create heroku-postgresql:hobby-dev
-heroku config:set DEBUG=False
-git push heroku main
-```
+**Backend: Onrender.app**
 
 See [DEPLOYMENT.md](./DEPLOYMENT.md) for detailed instructions.
 
 ## 📚 Documentation
 
-- **[BACKEND_FRONTEND_INTEGRATION.md](./BACKEND_FRONTEND_INTEGRATION.md)** (650+ lines)
-  - Complete state management mapping
-  - Event handler breakdown
-  - Service layer documentation
-  - Data flow examples
-  - Testing scenarios
-
-- **[SETTINGS_INTEGRATION_COMPLETE.md](./SETTINGS_INTEGRATION_COMPLETE.md)** (300+ lines)
-  - Feature overview
-  - Technical details
-  - Deployment checklist
-
 - **[QUICK_REFERENCE.md](./QUICK_REFERENCE.md)**
   - Quick start guide
   - Integration map table
   - Debugging tips
-
-- **[COMPLETE_CHANGE_SUMMARY.md](./COMPLETE_CHANGE_SUMMARY.md)**
-  - All code changes listed
-  - Line-by-line modifications
 
 - **[DEPLOYMENT.md](./DEPLOYMENT.md)**
   - Vercel deployment guide
@@ -494,103 +450,10 @@ See [DEPLOYMENT.md](./DEPLOYMENT.md) for detailed instructions.
 - [x] JWT interceptors for automatic token handling
 - [x] Comprehensive documentation
 
-<<<<<<< HEAD
-## 🔧 Development Commands
-
-### Backend
-```bash
-cd backend
-
-# Start development server
-python manage.py runserver
-
-# Run migrations
-python manage.py migrate
-
-# Create superuser
-python manage.py createsuperuser
-
-# Access admin
-http://127.0.0.1:8000/admin/
-
-# Run tests
-python manage.py test
-
-# Shell
-python manage.py shell
-```
-
-### Frontend
-```bash
-cd frontend
-
-# Start dev server
-npm run dev
-
-# Build for production
-npm run build
-
-# Preview build
-npm run preview
-
-# Run linter
-npm run lint
-```
-
-## 🐛 Troubleshooting
-
-### Backend Issues
-
-**"Database connection error"**
-- Ensure PostgreSQL is running
-- Check DATABASE_URL in .env
-- Run migrations: `python manage.py migrate`
-
-**"Module not found"**
-- Activate virtual environment: `source env/bin/activate`
-- Install requirements: `pip install -r requirements.txt`
-
-**"CORS error"**
-- Check CORS_ALLOWED_ORIGINS in settings.py
-- Ensure frontend URL is whitelisted
-
-### Frontend Issues
-
-**"API calls failing"**
-- Check VITE_API_URL in .env
-- Ensure backend is running
-- Check browser Network tab for error details
-
-**"Build errors"**
-- Clear node_modules: `rm -rf node_modules && npm install`
-- Clear Vite cache: `rm -rf .vite`
-
-## 📊 Statistics
-
-- **Backend Endpoints:** 7 (4 existing + 3 new)
-- **Service Methods:** 9 (6 company + 3 auth)
-- **Event Handlers:** 5 (all functional)
-- **UI Components:** 20+
-- **Database Models:** 2 (CustomUser + CompanyProfile)
-- **Lines of Documentation:** 1000+
-
-## 🤝 Contributing
-
-1. Create a feature branch: `git checkout -b feature/your-feature`
-2. Commit changes: `git commit -am 'Add feature'`
-3. Push to branch: `git push origin feature/your-feature`
-4. Open a pull request
-=======
->>>>>>> 20d3aebe10dbb4f25982cbb6028684125e582943
-
-## 📄 License
-
-MIT License - see LICENSE file for details
-
 ## 👤 Author
 
-Created by Abhinandan Jain  
-GitHub: https://github.com/abhinandanjain001
+Created by Sukesh Kumar  
+GitHub: https://github.com/sukesh2294
 
 ## 📞 Support
 
