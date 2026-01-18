@@ -16,8 +16,12 @@ import AnalyticsPage from "./pages/AnalyticsPage";
 // API 
 import axios from "axios";
 
-// Use environment variable or fallback to localhost for development
-const API_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
+
+const API_URL =
+  window.location.hostname === "localhost"
+    ? import.meta.env.VITE_API_URL_LOCAL
+    : import.meta.env.VITE_API_URL_PROD;
+    
 axios.defaults.baseURL = API_URL;
 axios.defaults.headers.common["Content-Type"] = "application/json";
 
@@ -69,7 +73,7 @@ function App() {
         textAlign: "center"
       }}>
         <h2 style={{ color: "red" }}>❌ Backend Connection Failed</h2>
-        <p>Make sure Django backend is running on http://127.0.0.1:8000</p>
+        <p>Make sure Django backend is running on {API_URL}</p>
         <p>Run: <code>python manage.py runserver</code></p>
       </div>
     );

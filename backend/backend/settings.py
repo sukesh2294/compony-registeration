@@ -182,7 +182,7 @@ CORS_ALLOWED_ORIGINS = env.list('CORS_ALLOWED_ORIGINS', default=[
     "http://127.0.0.1:3000",
     "http://localhost:8000",  # Allow same origin
     "http://127.0.0.1:8000",
-    "https://compony-registeration-frontend.vercel.app",  # Production frontend
+    "https://compony-registeration-frontend.vercel.app",  # Production 
 ])
 
 CORS_ALLOW_CREDENTIALS = True

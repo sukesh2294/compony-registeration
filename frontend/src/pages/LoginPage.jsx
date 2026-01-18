@@ -370,7 +370,7 @@ export default function LoginPage() {
   const loginMutation = useMutation({
     mutationFn: async (credentials) => {
       const response = await axios.post(
-        "http://127.0.0.1:8000/api/auth/login/",
+        "/api/auth/login/",
         credentials,
         {
           headers: {

@@ -1,7 +1,9 @@
 import axios from 'axios'
 
-// Prefer env, fall back to local dev API
-const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000'
+const API_URL =
+  window.location.hostname === "localhost"
+    ? import.meta.env.VITE_API_URL_LOCAL
+    : import.meta.env.VITE_API_URL_PROD;
 
 const api = axios.create({
   baseURL: API_URL,

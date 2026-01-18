@@ -2,7 +2,7 @@ import axios from "axios";
 
 // Create axios instance
 const api = axios.create({
-  baseURL: "http://127.0.0.1:8000",
+  baseURL: import.meta.env.VITE_API_URL,
   headers: {
     "Content-Type": "application/json",
   },
@@ -37,7 +37,7 @@ api.interceptors.response.use(
         const refreshToken = localStorage.getItem("refresh_token");
         if (refreshToken) {
           const response = await axios.post(
-            "http://127.0.0.1:8000/api/token/refresh/",
+            "/api/token/refresh/",
             { refresh: refreshToken }
           );
           
