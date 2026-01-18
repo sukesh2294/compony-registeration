@@ -390,10 +390,44 @@ export default function LoginPage() {
       }
     },
     onError: (error) => {
+      console.error("Login Error:", error);
       let errorMessage = "Login failed. Please try again.";
-      if (error.response?.data?.message) {
+      
+      // Handle HTML response (API URL not configured)
+      if (error.isHtmlResponse || (error.response?.data && typeof error.response.data === "string" && error.response.data.includes("<!doctype html>"))) {
+        errorMessage = "API Configuration Error: VITE_API_URL_PROD is not set!\n\n" +
+          "Please configure the backend API URL in your deployment platform:\n" +
+          "1. Go to your deployment settings (Vercel/Netlify/etc)\n" +
+          "2. Add environment variable: VITE_API_URL_PROD\n" +
+          "3. Value: https://compony-registeration-backend.onrender.com\n" +
+          "4. Redeploy your frontend\n\n" +
+          "Check browser console (F12) for more details.";
+        toast.error(errorMessage, { autoClose: 10000 });
+        return;
+      }
+      
+      // Handle network errors
+      if (error.code === "ERR_NETWORK" || error.message === "Network Error" || error.message === "API_URL_NOT_CONFIGURED") {
+        if (!error.config?.baseURL || error.apiUrlNotSet) {
+          errorMessage = "API Configuration Error: Backend API URL is not configured!\n\n" +
+            "Set VITE_API_URL_PROD environment variable:\n" +
+            "Value: https://compony-registeration-backend.onrender.com";
+        } else {
+          errorMessage = "Network error. Please check:\n1. Backend API is running\n2. VITE_API_URL_PROD is set correctly\n3. Check browser console for details";
+        }
+        console.error("Network Error Details:", {
+          code: error.code,
+          message: error.message,
+          config: error.config,
+          apiUrl: error.config?.baseURL
+        });
+      } 
+      // Handle server errors
+      else if (error.response?.data?.message) {
         errorMessage = error.response.data.message;
-      } else if (error.response?.data?.errors) {
+      } 
+      // Handle validation errors
+      else if (error.response?.data?.errors) {
         const errors = error.response.data.errors;
         if (typeof errors === "object") {
           errorMessage = Object.values(errors)[0] || errorMessage;
@@ -401,7 +435,12 @@ export default function LoginPage() {
           errorMessage = errors[0]?.message || errorMessage;
         }
       }
-      toast.error(errorMessage);
+      // Handle CORS or connection errors
+      else if (error.code === "ECONNREFUSED" || error.code === "ERR_CONNECTION_REFUSED") {
+        errorMessage = "Cannot connect to backend API. Please verify the API URL is correct.";
+      }
+      
+      toast.error(errorMessage, { autoClose: 5000 });
     },
   });
 
