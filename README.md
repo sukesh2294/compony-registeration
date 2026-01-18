@@ -74,12 +74,13 @@ A full-stack web application for secure company registration, management and das
 - **django-cors-headers** - CORS support
 - **djangorestframework-simplejwt** - JWT authentication
 - **Cloudinary** - Image storage and transformation
-- **Firebase** - Optional mobile/auth integration
+- **Firebase** - storing password & Email
 
 ### Infrastructure
-- **Vercel** - Frontend hosting (zero-config deploy)
-- **Railway/Heroku Postgres** - Database hosting
+- **Vercel** - Frontend hosting
+- **Render** -Backend & Database hosting
 - **Cloudinary** - Image CDN
+-**Firebase** - to store email & password hashing 
 
 ## 📁 Project Structure
 
@@ -118,12 +119,7 @@ company-registration/
 <<<<<<< HEAD
 ├── backend/                    # Django application
 │   ├── accounts/               # User authentication
-│   │   ├── models.py          # CustomUser model
-=======
-├── backened/                    
-│   ├── accounts/               
-│   │   ├── models.py          
->>>>>>> 20d3aebe10dbb4f25982cbb6028684125e582943
+│   │   ├── models.py          # CustomUser model                    
 │   │   ├── views.py
 │   │   ├── serializers.py
 │   │   └── migrations/
@@ -138,13 +134,9 @@ company-registration/
 │   │   ├── serializers.py
 │   │   └── services/
 │   │       ├── cloudinary_service.py
-│   │       └── firebase_service.py
-<<<<<<< HEAD
-│   ├── backend/              # Django settings
-=======
+│   │       └── firebase_service.py             
 │   ├── backened/              
->>>>>>> 20d3aebe10dbb4f25982cbb6028684125e582943
-│   │   ├── settings.py
+│   │   ├── settings.py     # Django settings
 │   │   ├── urls.py
 │   │   ├── asgi.py
 │   │   └── wsgi.py
@@ -173,8 +165,6 @@ python -m venv env
 # Activate virtual environment
 # Windows:
 env\Scripts\activate
-# macOS/Linux:
-source env/bin/activate
 
 # Install dependencies
 pip install -r requirements.txt
@@ -184,7 +174,6 @@ cp .env.example .env
 
 # Configure database in .env:
 # DATABASE_URL=postgresql://user:password@localhost:5432/company_reg
-# or use SQLite: DATABASE_URL=sqlite:///db.sqlite3
 
 # Run migrations
 python manage.py migrate
@@ -217,69 +206,6 @@ cp .env.example .env
 npm run dev
 
 # Frontend runs at http://localhost:5173
-```
-
-### Access the Application
-
-```
-Frontend:    http://localhost:5173
-Backend API: http://127.0.0.1:8000/api/
-Admin Panel: http://127.0.0.1:8000/admin/
-```
-
-## 📝 API Endpoints
-
-### Authentication Endpoints
-```
-POST   /api/auth/register/             - Register new user
-POST   /api/auth/login/                - User login
-PATCH  /api/auth/profile/              - Update user email/phone ⭐ NEW
-POST   /api/auth/change-password/      - Change password ⭐ NEW
-POST   /api/auth/delete-account/       - Delete account ⭐ NEW
-POST   /api/token/refresh/             - Refresh JWT token
-```
-
-### Company Endpoints
-```
-POST   /api/company/register/          - Create company profile
-GET    /api/company/profile/           - Get user's company profile
-PUT    /api/company/profile/           - Update company profile (full)
-PATCH  /api/company/profile/           - Update company profile (partial) ⭐ NEW
-POST   /api/company/upload-logo/       - Upload company logo
-POST   /api/company/upload-banner/     - Upload company banner
-```
-
-## 🗄️ Database Models
-
-### CustomUser Model
-```python
-- email (unique, required)
-- password (hashed)
-- full_name
-- mobile_no (unique)
-- gender
-- firebase_uid (optional)
-- is_email_verified
-- is_mobile_verified
-- created_at, updated_at
-```
-
-### CompanyProfile Model
-```python
-- owner (ForeignKey to CustomUser)
-- company_name
-- description
-- organization_type
-- industry
-- team_size
-- founded_date
-- website
-- social_links (JSONField - stores array of social media)
-- logo_url (from Cloudinary)
-- banner_url (from Cloudinary)
-- address fields (address, city, state, country, postal_code)
-- created_at, updated_at
-```
 
 ## 🔐 Authentication Flow
 
@@ -305,45 +231,6 @@ Token expires? → Auto-refresh with refresh_token
 Token invalid? → Redirect to login
 ```
 
-## ⚙️ Environment Variables
-
-### Backend (.env)
-```bash
-# Database
-DATABASE_URL=postgresql://user:password@localhost:5432/company_registration
-# or use SQLite:
-# DATABASE_URL=sqlite:///db.sqlite3
-
-# Django
-DEBUG=True
-SECRET_KEY=your-secret-key-min-32-chars
-ALLOWED_HOSTS=localhost,127.0.0.1
-
-# JWT
-JWT_SECRET_KEY=your-jwt-secret-key-min-32-chars
-JWT_ALGORITHM=HS256
-
-# Cloudinary (for image uploads)
-CLOUDINARY_NAME=your_cloudinary_name
-CLOUDINARY_API_KEY=your_api_key
-CLOUDINARY_API_SECRET=your_api_secret
-
-# CORS
-CORS_ALLOWED_ORIGINS=http://localhost:5173,http://localhost:3000
-
-# Firebase (optional)
-FIREBASE_TYPE=service_account
-FIREBASE_PROJECT_ID=your_project_id
-# ... other Firebase config
-```
-
-### Frontend (.env)
-```bash
-VITE_API_URL=http://127.0.0.1:8000/api
-VITE_FIREBASE_API_KEY=your_firebase_key
-VITE_FIREBASE_AUTH_DOMAIN=your_firebase_domain
-# ... other Firebase config
-```
 
 ## 🧪 Testing the Integration
 
