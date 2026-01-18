@@ -7,8 +7,8 @@ import { useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
-import axios from "axios";
 import { toast } from "react-toastify";
+import { authAPI } from "../api";
 
 // Material-UI Components
 import {
@@ -369,16 +369,7 @@ export default function LoginPage() {
   // React Query Mutation
   const loginMutation = useMutation({
     mutationFn: async (credentials) => {
-      const response = await axios.post(
-        "/api/auth/login/",
-        credentials,
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-          timeout: 10000,
-        }
-      );
+      const response = await authAPI.login(credentials);
       return response.data;
     },
     onSuccess: (data) => {

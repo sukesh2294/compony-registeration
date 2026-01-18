@@ -1,12 +1,23 @@
 import axios from "axios";
 
+// Get API URL based on environment
+const API_URL =
+  window.location.hostname === "localhost"
+    ? import.meta.env.VITE_API_URL_LOCAL || "http://localhost:8000"
+    : import.meta.env.VITE_API_URL_PROD || import.meta.env.VITE_API_URL;
+
 // Create axios instance
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL,
+  baseURL: API_URL,
   headers: {
     "Content-Type": "application/json",
   },
 });
+
+// Log API URL for debugging (only in development)
+if (import.meta.env.DEV) {
+  console.log("📡 API Base URL:", API_URL);
+}
 
 // Add request interceptor to add JWT token
 api.interceptors.request.use(
@@ -37,7 +48,7 @@ api.interceptors.response.use(
         const refreshToken = localStorage.getItem("refresh_token");
         if (refreshToken) {
           const response = await axios.post(
-            "/api/token/refresh/",
+            `${API_URL}/api/token/refresh/`,
             { refresh: refreshToken }
           );
           

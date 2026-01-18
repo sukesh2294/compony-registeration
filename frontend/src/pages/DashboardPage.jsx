@@ -255,9 +255,9 @@ export default function DashboardPage() {
           <header className={`${
             dark ? "bg-slate-800 border-slate-700" : "bg-white border-gray-200"
           } border-b px-4 sm:px-6 py-4 flex items-center justify-between sticky top-0 z-20 shadow-sm`}>
-            <div className="flex items-center gap-4 flex-1">
+            <div className="flex items-center gap-4 flex-1 ">
               <button
-                className={`p-2 rounded-lg transition hover:scale-110 lg:hidden ${
+                className={`p-2 rounded-lg transition hover:scale-110 cursor-pointer ${
                   dark ? "hover:bg-slate-700" : "hover:bg-gray-100"
                 }`}
                 onClick={() => setSidebarOpen(!sidebarOpen)}
