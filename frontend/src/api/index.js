@@ -42,8 +42,10 @@ const api = axios.create({
   baseURL: API_URL || (isLocalhost ? "http://localhost:8000" : ""),
   headers: {
     "Content-Type": "application/json",
+    "Accept": "application/json",
   },
-  timeout: 30000, // 30 seconds timeout
+  timeout: 60000, // 60 seconds timeout (Render free tier may need cold start time)
+  withCredentials: false, // Disable credentials for CORS simplicity
 });
 
 // Log API URL for debugging (always, not just in dev)
@@ -75,13 +77,18 @@ api.interceptors.request.use(
       console.error("⚠️ Request config:", config);
     }
     
+    // Add retry metadata for timeout/network errors
+    config._retryCount = config._retryCount || 0;
+    config._maxRetries = 3;
+    
     const token = localStorage.getItem("access_token");
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+    
     // Log request in development
     if (import.meta.env.DEV) {
-      console.log("🚀 API Request:", config.method?.toUpperCase(), config.url);
+      console.log("🚀 API Request:", config.method?.toUpperCase(), config.url, config._retryCount > 0 ? `(retry ${config._retryCount})` : "");
     }
     return config;
   },

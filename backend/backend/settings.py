@@ -102,13 +102,13 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': env('DB_NAME', default='company_db'),
-        'USER': env('DB_USER', default='postgres'),
-        'PASSWORD': env('DB_PASSWORD', default=''),  # MUST be set in production
-        'HOST': env('DB_HOST', default='localhost'),
+        'NAME': env('DB_NAME', default=''),
+        'USER': env('DB_USER', default=''),
+        'PASSWORD': env('DB_PASSWORD', default=''),  
+        'HOST': env('DB_HOST', default=''),
         'PORT': env('DB_PORT', default='5432'),
         'OPTIONS': {
-            'sslmode': 'require',  # Force SSL for production databases
+            'sslmode': 'require',  
         },
     }
 }
@@ -188,7 +188,13 @@ CORS_ALLOWED_ORIGINS = env.list('CORS_ALLOWED_ORIGINS', default=[
     "https://compony-registeration-frontend.vercel.app",  # Production 
 ])
 
-CORS_ALLOW_CREDENTIALS = True
+# Allow CORS from any origin in development, restrict in production
+if DEBUG:
+    CORS_ALLOW_ALL_ORIGINS = True
+else:
+    CORS_ALLOW_ALL_ORIGINS = False
+
+CORS_ALLOW_CREDENTIALS = False  # Set to False if not using cookies
 CORS_ALLOW_HEADERS = [
     'accept',
     'accept-encoding',
@@ -199,7 +205,12 @@ CORS_ALLOW_HEADERS = [
     'user-agent',
     'x-csrftoken',
     'x-requested-with',
+    'cache-control',
+    'pragma',
 ]
+
+# CORS preflight options
+CORS_PREFLIGHT_MAX_AGE = 86400  # 24 hours
 
 
 
