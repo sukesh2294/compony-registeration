@@ -78,7 +78,8 @@ A full-stack web application for secure company registration, management and das
 
 ### Infrastructure
 - **Vercel** - Frontend hosting (zero-config deploy)
-- **Railway/Heroku Postgres** - Database hosting
+- **Onrender** - Database hosting
+- **Firebase** - JWT token
 - **Cloudinary** - Image CDN
 
 ## 📁 Project Structure
