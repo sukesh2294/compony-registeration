@@ -4,7 +4,7 @@ A full-stack web application for secure company registration, management and das
 
 **Documentation:** See [ARCHITECTURE_DIAGRAM](./ARCHITECTURE_DIAGRAM.md) for complete technical analysis  
 **🚀Quick Start:** - [**Live Demo:**](https://compony-registeration-frontend.vercel.app)    
-                    -  [**Demo Video:🎥**](https://drive.google.com/file/d/1jq_LOo2RH_b-4tvCgBXOWd67UsR3rreu/view)
+  &nbsp;&nbsp;&nbsp;  [**Demo Video:🎥**](https://drive.google.com/file/d/1jq_LOo2RH_b-4tvCgBXOWd67UsR3rreu/view)
 
 ## ✨ Key Features
 
