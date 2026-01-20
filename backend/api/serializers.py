@@ -272,7 +272,7 @@ class CompanyRegistrationSerializer(serializers.Serializer):
     state = serializers.CharField(max_length=50)
     country = serializers.CharField(max_length=50)
     postal_code = serializers.CharField(max_length=20)
-    website = serializers.URLField(required=False, allow_blank=True)
+    website = serializers.URLField(required=False, allow_blank=True,allow_null=True)
     industry = serializers.CharField()
     founded_date = serializers.DateField(required=False)
     description = serializers.CharField(required=False, allow_blank=True)

@@ -34,14 +34,16 @@ from .services.cloudinary_service import upload_image
 
 def home(request):
     return HttpResponse("""
-        <h1 style="text-align:center; margin-top:40px;">
-            Backend is running!
-        </h1>
-        <p style="text-align:center;color:gray;">
-            <a href="https://compony-registeration-frontend.vercel.app" target="_blank"
-                        style="padding: 10px 20px; background:#007bff; color:white; border-radius: 8px; text-decoration:none;">
-                        > Go to Frontend </a>
-        </p>
+        <div style="max-width:600px;margin:50px auto;padding:20px;border:1px solid #eee;border-radius:10px;text-align:center;font-family:sans-serif;">
+            <h1 style=" text-align:center;color:#333;">
+                Backend is running!
+            </h1>
+            <p style="text-align:center;color:gray;">
+                <a href="https://compony-registeration-frontend.vercel.app" target="_blank"
+                            style="padding: 10px 20px; background:#007bff; color:white; border-radius: 8px; text-decoration:none;">
+                             Go to Frontend </a>
+            </p>
+        </div>
     """)
 
 
