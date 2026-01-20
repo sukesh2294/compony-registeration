@@ -80,7 +80,7 @@ A full-stack web application for secure company registration, management and das
 - **Vercel** - Frontend hosting 
 - **Render** - Backend & Database hosting
 - **Cloudinary** - Image CDN
--**Firebase** - to store email & password hashing 
+- **Firebase** - to store email & password hashing 
 
 ## 📁 Project Structure
 
@@ -216,60 +216,6 @@ Backend API: http://127.0.0.1:8000/api/
 Admin Panel: http://127.0.0.1:8000/admin/
 ```
 
-## 📝 API Endpoints
-
-### Authentication Endpoints
-```
-POST   /api/auth/register/             - Register new user
-POST   /api/auth/login/                - User login
-PATCH  /api/auth/profile/              - Update user email/phone ⭐ NEW
-POST   /api/auth/change-password/      - Change password ⭐ NEW
-POST   /api/auth/delete-account/       - Delete account ⭐ NEW
-POST   /api/token/refresh/             - Refresh JWT token
-```
-
-### Company Endpoints
-```
-POST   /api/company/register/          - Create company profile
-GET    /api/company/profile/           - Get user's company profile
-PUT    /api/company/profile/           - Update company profile (full)
-PATCH  /api/company/profile/           - Update company profile (partial) ⭐ NEW
-POST   /api/company/upload-logo/       - Upload company logo
-POST   /api/company/upload-banner/     - Upload company banner
-```
-
-## 🗄️ Database Models
-
-### CustomUser Model
-```python
-- email (unique, required)
-- password (hashed)
-- full_name
-- mobile_no (unique)
-- gender
-- firebase_uid (optional)
-- is_email_verified
-- is_mobile_verified
-- created_at, updated_at
-```
-
-### CompanyProfile Model
-```python
-- owner (ForeignKey to CustomUser)
-- company_name
-- description
-- organization_type
-- industry
-- team_size
-- founded_date
-- website
-- social_links (JSONField - stores array of social media)
-- logo_url (from Cloudinary)
-- banner_url (from Cloudinary)
-- address fields (address, city, state, country, postal_code)
-- created_at, updated_at
-```
-
 ## 🔐 Authentication Flow
 
 ```
@@ -328,58 +274,6 @@ Token invalid? → Redirect to login
 5. Account deleted → Redirected to login ✅
 6. CompanyProfile also deleted ✅
 
-## 📦 Dependencies
-
-### Frontend (package.json)
-```json
-{
-  "dependencies": {
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "react-router-dom": "^6.x",
-    "redux": "^4.x",
-    "react-redux": "^8.x",
-    "@reduxjs/toolkit": "^1.x",
-    "axios": "^1.x",
-    "tailwindcss": "^3.x",
-    "@mui/material": "^5.x",
-    "lucide-react": "latest",
-    "recharts": "^2.x"
-  }
-}
-```
-
-### Backend (requirements.txt)
-```
-Django==4.2.x
-djangorestframework==3.14.x
-django-cors-headers==4.x
-djangorestframework-simplejwt==5.x
-cloudinary==1.x
-Pillow==10.x  # Image processing
-python-decouple==3.x
-psycopg2-binary==2.9.x  # PostgreSQL adapter
-```
-
-## 🚀 Deployment
-
-### Deploy Frontend to Vercel
-
-**Backend: Onrender.app**
-
-See [DEPLOYMENT.md](./DEPLOYMENT.md) for detailed instructions.
-
-## 📚 Documentation
-
-- **[QUICK_REFERENCE.md](./QUICK_REFERENCE.md)**
-  - Quick start guide
-  - Integration map table
-  - Debugging tips
-
-- **[DEPLOYMENT.md](./DEPLOYMENT.md)**
-  - Vercel deployment guide
-  - Database setup
-  - Environment configuration
 
 ## ✅ Completed Features
 
@@ -405,14 +299,6 @@ See [DEPLOYMENT.md](./DEPLOYMENT.md) for detailed instructions.
 Created by Sukesh Kumar  
 GitHub: https://github.com/sukesh2294
 
-## 📞 Support
-
-For issues, questions, or suggestions:
-- Open an issue on GitHub
-- Check documentation files in project root
-- Review [BACKEND_FRONTEND_INTEGRATION.md](./BACKEND_FRONTEND_INTEGRATION.md) for technical details
-
----
 
 **Status:** ✅ Production Ready  
 **Last Updated:** January 17, 2026  
