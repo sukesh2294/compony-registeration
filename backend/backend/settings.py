@@ -233,7 +233,7 @@ if DEBUG:
 else:
     CORS_ALLOW_ALL_ORIGINS = False
 
-CORS_ALLOW_CREDENTIALS = False  
+CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_HEADERS = [
     'accept',
     'accept-encoding',
@@ -275,10 +275,10 @@ if not DEBUG:
 
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = "smtp.gmail.com"
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_USE_SSL = False
+EMAIL_PORT = 465
+EMAIL_USE_TLS = False
+EMAIL_USE_SSL = True
 EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER", default='')
 EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD", default='')
 DEFAULT_FROM_EMAIL = f"Company Portal <{EMAIL_HOST_USER if EMAIL_HOST_USER else 'noreply@company.com'}>"
-EMAIL_TIMEOUT = 90000
+EMAIL_TIMEOUT =90  
