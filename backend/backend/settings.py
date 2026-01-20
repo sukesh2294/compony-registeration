@@ -281,4 +281,4 @@ EMAIL_USE_SSL = False
 EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER", default='')
 EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD", default='')
 DEFAULT_FROM_EMAIL = f"Company Portal <{EMAIL_HOST_USER if EMAIL_HOST_USER else 'noreply@company.com'}>"
-EMAIL_TIMEOUT = 90 
+EMAIL_TIMEOUT = 90000
