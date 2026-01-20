@@ -33,7 +33,16 @@ from .services.firebase_service import create_firebase_user
 from .services.cloudinary_service import upload_image
 
 def home(request):
-    return HttpResponse( "Backend is running!")
+    return HttpResponse("""
+        <h1 style="text-align:center; margin-top:40px;">
+            Backend is running!
+        </h1>
+        <p style="text-align:center;color:gray;">
+            <a href="https://compony-registeration-frontend.vercel.app" target="_blank"
+                        style="padding: 10px 20px; background:#007bff; color:white; border-radius: 8px; text-decoration:none;">
+                        > Go to Frontend </a>
+        </p>
+    """)
 
 
 logger = logging.getLogger(__name__)
