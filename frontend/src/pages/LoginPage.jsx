@@ -10,6 +10,8 @@ import * as yup from "yup";
 import { toast } from "react-toastify";
 import { authAPI } from "../api";
 
+import VerifyOtpPopup from "../components/common/VerifyOtpPopup"; 
+
 // Material-UI Components
 import {
   Avatar,
@@ -353,6 +355,9 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
 
+  const [otpModalOpen, setOtpModalOpen] = useState(false);
+  const [pendingCredentials, setPendingCredentials] = useState(null);
+
   // React Hook Form
   const {
     register,
@@ -372,23 +377,56 @@ export default function LoginPage() {
       const response = await authAPI.login(credentials);
       return response.data;
     },
+    // onSuccess: (data) => {
+    //   if (data.success) {
+    //     localStorage.setItem("access_token", data.data.access_token);
+    //     localStorage.setItem("refresh_token", data.data.refresh_token);
+    //     localStorage.setItem("user", JSON.stringify(data.data.user));
+    //     dispatch(
+    //       setCredentials({
+    //         user: data.data.user,
+    //         accessToken: data.data.access_token,
+    //       })
+    //     );
+    //     toast.success("🎉 Login successful! Welcome back!");
+    //     navigate("/dashboard");
+    //   } else {
+    //     toast.error(data.message || "Login failed");
+    //   }
+    // },
+
     onSuccess: (data) => {
       if (data.success) {
-        localStorage.setItem("access_token", data.data.access_token);
-        localStorage.setItem("refresh_token", data.data.refresh_token);
-        localStorage.setItem("user", JSON.stringify(data.data.user));
-        dispatch(
-          setCredentials({
-            user: data.data.user,
-            accessToken: data.data.access_token,
-          })
-        );
-        toast.success("🎉 Login successful! Welcome back!");
-        navigate("/dashboard");
+        if (data.data?.requiresOtp) {
+          setPendingCredentials({
+            email: data.email || data.data?.email, 
+            userId: data.userId || data.data?.user_id,
+            access_token: data.data?.access_token,
+            temp_token: data.data?.temp_token, // CRITICAL: Store temp_token for OTP verification
+          });
+          setOtpModalOpen(true);
+          toast.info("📱 OTP sent to your registered email/phone!");
+        } else {
+          // Direct login (no OTP required)
+          localStorage.setItem("access_token", data.data.access_token);
+          localStorage.setItem("refresh_token", data.data.refresh_token);
+          localStorage.setItem("user", JSON.stringify(data.data.user));
+          dispatch(
+            setCredentials({
+              user: data.data.user,
+              accessToken: data.data.access_token,
+            })
+          );
+          setOtpModalOpen(false);
+          setPendingCredentials(null); 
+          toast.success("🎉 Login successful! Welcome back!");
+          navigate("/dashboard");
+        }
       } else {
         toast.error(data.message || "Login failed");
       }
     },
+
     onError: (error) => {
       console.error("Login Error:", error);
       let errorMessage = "Login failed. Please try again.";
@@ -453,6 +491,83 @@ export default function LoginPage() {
     },
   });
 
+  // mutations for OTP handling
+  const verifyOtpMutation = useMutation({
+    mutationFn: async (otpData) => {
+      // Validate required fields
+      if (!pendingCredentials?.email) {
+        throw new Error("Email is required for OTP verification");
+      }
+      if (!pendingCredentials?.temp_token) {
+        throw new Error("Temporary token is missing. Please try logging in again.");
+      }
+      
+      const response = await authAPI.verifyLoginOtp({
+        email: pendingCredentials.email,
+        otp: otpData,
+        temp_token: pendingCredentials.temp_token,
+      });
+      return response.data;
+    },
+    onSuccess: (data) => {
+      if (data.success) {
+        // Store final tokens
+        localStorage.setItem("access_token", data.data.access_token);
+        localStorage.setItem("refresh_token", data.data.refresh_token);
+        localStorage.setItem("user", JSON.stringify(data.data.user));
+        dispatch(
+          setCredentials({
+            user: data.data.user,
+            accessToken: data.data.access_token,
+          })
+        );
+        toast.success("✅ OTP verified! Login successful!");
+        setOtpModalOpen(false);
+        navigate("/dashboard");
+      } else {
+        toast.error(data.message || "OTP verification failed");
+      }
+    },
+    onError: (error) => {
+      toast.error(error.response?.data?.message || "OTP verification failed");
+    },
+  });
+
+  const resendOtpMutation = useMutation({
+    mutationFn: async () => {
+      const response = await authAPI.resendLoginOtp({
+        email: pendingCredentials?.email,
+      });
+      return response.data;
+    },
+    onSuccess: (data) => {
+      if (data.success) {
+        if (data.data?.temp_token) {
+          setPendingCredentials((prev) => prev ? ({ ...prev, temp_token: data.data.temp_token }) : prev);
+        }
+        toast.success("🔄 New OTP sent successfully!");
+      } else {
+        toast.error(data.message || "Failed to resend OTP");
+      }
+    },
+    onError: (error) => {
+      toast.error(error.response?.data?.message || "Failed to resend OTP");
+    },
+  });
+
+  const handleOtpVerify = (otpCode) => {
+    verifyOtpMutation.mutate(otpCode);
+  };
+
+  const handleOtpResend = () => {
+    resendOtpMutation.mutate();
+  };
+
+  const handleOtpModalClose = () => {
+    setOtpModalOpen(false);
+    setPendingCredentials(null);
+  };
+
   const onSubmit = (data) => {
     loginMutation.mutate(data);
   };
@@ -469,7 +584,6 @@ export default function LoginPage() {
     <>
       <CssBaseline />
       <LoginContainer maxWidth={false}>
-        {/* Floating Background Elements */}
         <FloatingElements>
           <FloatingElement sx={{ top: "10%", left: "5%", width: 100, height: 100, animation: "float 6s ease-in-out infinite" }} />
           <FloatingElement sx={{ top: "20%", right: "10%", width: 150, height: 150, animation: "float 8s ease-in-out infinite 1s" }} />
@@ -792,7 +906,17 @@ export default function LoginPage() {
         </LoginCard>
       </LoginContainer>
 
-      {/* Add floating animation keyframes */}
+      <VerifyOtpPopup
+          open={otpModalOpen}
+          onClose={handleOtpModalClose}
+          onVerify={handleOtpVerify}
+          onResend={handleOtpResend}
+          email={pendingCredentials?.email}
+          context="login"
+          loading={verifyOtpMutation.isPending}
+          resendLoading={resendOtpMutation.isPending}
+        />
+
       <style jsx="true">{`
         @keyframes float {
           0%, 100% {

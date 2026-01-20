@@ -5,6 +5,11 @@ from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.utils import timezone
 import bcrypt
+    
+import uuid
+from django.db import models
+from datetime import timedelta
+
 
 class CustomUserManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
@@ -59,3 +64,37 @@ class CustomUser(AbstractBaseUser):
     
     def __str__(self):
         return self.email
+
+class OTP(models.Model):
+    PURPOSE_CHOICES = [
+        ('login', 'Login Verification'),
+        ('registration', 'Registration Verification'),
+        ('password_reset', 'Password Reset'),
+    ]
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE,null=True, blank=True, related_name='otps')
+    purpose = models.CharField(max_length=20, choices=PURPOSE_CHOICES)
+    otp_code = models.CharField(max_length=6)
+    token = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
+    is_used = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField()
+    
+    class Meta:
+        indexes = [
+            models.Index(fields=['token', 'is_used']),
+            models.Index(fields=['user', 'purpose', 'is_used']),
+        ]
+        ordering = ['-created_at']
+    
+    def __str__(self):
+        email = self.user.email if self.user else "<no-user>"
+        return f"{email} - {self.purpose} - {self.otp_code}"
+    
+    def save(self, *args, **kwargs):
+        if not self.expires_at:
+            self.expires_at = timezone.now() + timedelta(minutes=10)
+        super().save(*args, **kwargs)
+    
+    def is_valid(self):
+        """Check if OTP is still valid and not used"""
+        return not self.is_used and timezone.now() < self.expires_at

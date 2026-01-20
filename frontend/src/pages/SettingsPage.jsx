@@ -634,6 +634,13 @@ export default function SettingsPage() {
                           <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
                             <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
                             <p className="text-sm text-gray-600 font-medium">Click to upload logo</p>
+                            <input
+                              type="file"
+                              id="logo-upload"
+                              accept="image/*"
+                              onClick={handleLogoUpload}
+                              className=" opacity-0 cursor-pointer"
+                            />
                           </div>
                         )}
                       </div>
@@ -692,6 +699,13 @@ export default function SettingsPage() {
                             <Upload className={`w-8 h-8 mx-auto mb-2 ${
                               dark ? "text-slate-400" : "text-gray-400"
                             }`} />
+                             <input
+                              type="file"
+                              id="logo-upload"
+                              accept="image/*"
+                              onClick={handleBannerUpload}
+                              className=" opacity-0 cursor-pointer"
+                            />
                             <p className={`text-sm font-medium ${
                               dark ? "text-slate-400" : "text-gray-600"
                             }`}>Click to upload banner</p>
@@ -1135,7 +1149,7 @@ export default function SettingsPage() {
                           }`} size={20} />
                           <input
                             type="text"
-                            value={accountSettings.mapLocation}
+                            value={user.address}
                             onChange={(e) => setAccountSettings({...accountSettings, mapLocation: e.target.value})}
                             className={`w-full pl-10 pr-4 py-2.5 border rounded-lg outline-none ${
                               dark
@@ -1164,10 +1178,12 @@ export default function SettingsPage() {
                                   : "border-gray-300 bg-white text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                               }`}
                             >
+                              <option value="+91">🇮🇳 +91</option>
                               <option value="+880">🇧🇩 +880</option>
                               <option value="+1">🇺🇸 +1</option>
                               <option value="+44">🇬🇧 +44</option>
-                              <option value="+91">🇮🇳 +91</option>
+                              <option value="">other</option>
+                              
                             </select>
                             <ChevronDown className={`absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none ${
                               dark ? "text-slate-400" : "text-gray-400"
@@ -1175,7 +1191,7 @@ export default function SettingsPage() {
                           </div>
                           <input
                             type="tel"
-                            value={accountSettings.phoneNumber}
+                            value={user.mobile_no}
                             onChange={(e) => setAccountSettings({...accountSettings, phoneNumber: e.target.value})}
                             className={`flex-1 px-4 py-2.5 border rounded-lg outline-none ${
                               dark
@@ -1199,7 +1215,7 @@ export default function SettingsPage() {
                           }`} size={20} />
                           <input
                             type="email"
-                            value={accountSettings.email}
+                            value={user.email}
                             onChange={(e) => setAccountSettings({...accountSettings, email: e.target.value})}
                             className={`w-full pl-10 pr-4 py-2.5 border rounded-lg outline-none ${
                               dark
@@ -1240,7 +1256,7 @@ export default function SettingsPage() {
                         <div className="relative">
                           <input
                             type={showPasswords.current ? "text" : "password"}
-                            value={accountSettings.currentPassword}
+                            value={user.password}
                             onChange={(e) => setAccountSettings({...accountSettings, currentPassword: e.target.value})}
                             className={`w-full px-4 py-2.5 pr-10 border rounded-lg outline-none ${
                               dark

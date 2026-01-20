@@ -71,6 +71,16 @@ const uploadBanner = async (file) => {
   return res.data
 }
 
+const getAnalytics = async () => {
+  const res = await api.get('/api/company/analytics/')
+  return res.data
+}
+
+const getInquiries = async () => {
+  const res = await api.get('/api/company/inquiries/')
+  return res.data
+}
+
 const companyService = {
   register,
   getProfile,
@@ -78,6 +88,10 @@ const companyService = {
   updateCompanyInfo,
   updateFoundingInfo,
   updateSocialLinks,
+  uploadLogo,
+  uploadBanner,
+  getAnalytics,
+  getInquiries,
 }
 
 export default companyService

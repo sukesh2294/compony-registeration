@@ -15,13 +15,52 @@ from pathlib import Path
 from datetime import timedelta
 import environ
 
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+def _load_dotenv_safely(dotenv_path: Path) -> None:
+    """
+    Load .env-like file without crashing/noisy 'Invalid line' warnings.
+
+    - Only accepts KEY=VALUE (or 'export KEY=VALUE')
+    - Ignores blank lines, comments (#...), and any other stray text lines
+    - Does NOT overwrite already-set OS env vars
+    """
+    if not dotenv_path.exists():
+        return
+
+    try:
+        content = dotenv_path.read_text(encoding="utf-8")
+    except Exception:
+        # If .env can't be read, just continue with OS env vars
+        return
+
+    for raw in content.splitlines():
+        line = raw.strip()
+        if not line or line.startswith("#"):
+            continue
+
+        if line.startswith("export "):
+            line = line[len("export ") :].strip()
+
+        if "=" not in line:
+            # e.g. "Database Lacal development" -> ignore instead of warning
+            continue
+
+        key, value = line.split("=", 1)
+        key = key.strip()
+        value = value.strip().strip('"').strip("'")
+        if not key:
+            continue
+
+        os.environ.setdefault(key, value)
+
+
+_load_dotenv_safely(BASE_DIR / ".env")
 env = environ.Env()
-environ.Env.read_env(os.path.join(Path(__file__).resolve().parent.parent, '.env'))
 
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 # Quick-start development settings - unsuitable for production
@@ -181,20 +220,20 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CORS_ALLOWED_ORIGINS = env.list('CORS_ALLOWED_ORIGINS', default=[
     "http://localhost:5173",  # React frontend Vite
     "http://127.0.0.1:5173",
-    "http://localhost:3000",  # Alternative port
+    "http://localhost:3000",  
     "http://127.0.0.1:3000",
-    "http://localhost:8000",  # Allow same origin
+    "http://localhost:8000",  #backend 
     "http://127.0.0.1:8000",
-    "https://compony-registeration-frontend.vercel.app",  # Production 
+    "https://compony-registeration-frontend.vercel.app",  
 ])
 
-# Allow CORS from any origin in development, restrict in production
+
 if DEBUG:
     CORS_ALLOW_ALL_ORIGINS = True
 else:
     CORS_ALLOW_ALL_ORIGINS = False
 
-CORS_ALLOW_CREDENTIALS = False  # Set to False if not using cookies
+CORS_ALLOW_CREDENTIALS = False  
 CORS_ALLOW_HEADERS = [
     'accept',
     'accept-encoding',
@@ -212,24 +251,21 @@ CORS_ALLOW_HEADERS = [
 # CORS preflight options
 CORS_PREFLIGHT_MAX_AGE = 86400  # 24 hours
 
-
-
 # Custom User Model
 AUTH_USER_MODEL = 'accounts.CustomUser'
 
-# Environment Variables for External Services
+
 CLOUDINARY_CLOUD_NAME = env('CLOUDINARY_CLOUD_NAME', default='')
 CLOUDINARY_API_KEY = env('CLOUDINARY_API_KEY', default='')
 CLOUDINARY_API_SECRET = env('CLOUDINARY_API_SECRET', default='')
 
-# Firebase Configuration (REST API)
+
 FIREBASE_API_KEY = env('FIREBASE_API_KEY', default='')
 FIREBASE_AUTH_DOMAIN = env('FIREBASE_AUTH_DOMAIN', default='')
 
 # Production security settings
 if not DEBUG:
-    # Security settings for production
-    SECURE_SSL_REDIRECT = False  # Render handles SSL
+    SECURE_SSL_REDIRECT = False  
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
     SECURE_BROWSER_XSS_FILTER = True
@@ -237,4 +273,11 @@ if not DEBUG:
     X_FRAME_OPTIONS = 'DENY'
 
 
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "smtp.gmail.com"
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER", default='')
+EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD", default='')
+DEFAULT_FROM_EMAIL = f"Compony Portal <{EMAIL_HOST_USER}>"
 

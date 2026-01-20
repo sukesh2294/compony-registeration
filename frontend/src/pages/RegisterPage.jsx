@@ -36,6 +36,9 @@ import {
 } from "@mui/icons-material";
 import { styled } from "@mui/material/styles";
 import { authAPI } from "../api";
+import { toast } from "react-toastify";
+
+import VerifyOtpPopup from "../components/common/VerifyOtpPopup";
 
 // Email validation regex
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -113,6 +116,13 @@ export default function RegisterPage() {
   const [activeStep, setActiveStep] = useState(0);
   const [passwordStrength, setPasswordStrength] = useState({ score: 0, label: "None", color: "#ccc" });
 
+  const [otpModalOpen, setOtpModalOpen] = useState(false);
+  const [pendingRegistration, setPendingRegistration] = useState(null);
+  const [registrationSuccess, setRegistrationSuccess] = useState(false);
+  const [emailVerified, setEmailVerified] = useState(false); // Track if email is verified
+  const [sendingOtp, setSendingOtp] = useState(false); // Loading state for sending OTP
+  const [verificationToken, setVerificationToken] = useState(null); // returned by backend (optional)
+
   // Form steps
   const steps = ['Personal Info', 'Account Details', 'Confirmation'];
 
@@ -174,12 +184,87 @@ export default function RegisterPage() {
     return newErrors;
   };
 
+  // Handle sending OTP for email verification (Step 2)
+  const handleSendOtp = async () => {
+    const validationErrors = validateForm();
+    
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
+    
+    // Validate email specifically
+    if (!formData.email.trim()) {
+      setErrors({ email: "Email is required" });
+      return;
+    }
+    
+    if (!emailRegex.test(formData.email)) {
+      setErrors({ email: "Enter a valid email address" });
+      return;
+    }
+    
+    setSendingOtp(true);
+    setErrors({});
+    
+    try {
+      const response = await authAPI.sendRegistrationOtp({
+        email: formData.email.trim().toLowerCase(),
+        password: formData.password,
+        full_name: formData.full_name.trim(),
+        mobile_no: formData.mobile_no.trim(),
+        gender: formData.gender,
+      });
+      
+      if (response.data.success) {
+        setPendingRegistration({
+          email: formData.email.trim().toLowerCase(),
+          temp_token: response.data.data.temp_token,
+          user_id: response.data.data.user_id,
+        });
+        setOtpModalOpen(true);
+        toast.success("📧 OTP sent to your email!");
+      } else {
+        toast.error(response.data.message || "Failed to send OTP");
+        if (response.data.errors) {
+          setErrors(response.data.errors);
+        }
+      }
+    } catch (error) {
+      console.error("Send OTP Error:", error);
+      if (error.response?.data?.errors) {
+        const apiErrors = error.response.data.errors;
+        if (apiErrors.email) {
+          setErrors({ email: Array.isArray(apiErrors.email) ? apiErrors.email[0] : apiErrors.email });
+        }
+        // Set other field errors
+        Object.keys(apiErrors).forEach(key => {
+          if (key !== 'email') {
+            setErrors(prev => ({ ...prev, [key]: Array.isArray(apiErrors[key]) ? apiErrors[key][0] : apiErrors[key] }));
+          }
+        });
+      }
+      toast.error(error.response?.data?.message || "Failed to send OTP. Please try again.");
+    } finally {
+      setSendingOtp(false);
+    }
+  };
+
   // Handle step navigation
   const handleNext = () => {
     const validationErrors = validateForm();
     
     if (Object.keys(validationErrors).length === 0) {
-      if (activeStep < steps.length - 1) {
+      // Step 2 (Account Details) - Send OTP before proceeding
+      if (activeStep === 1) {
+        // If email already verified, proceed to next step
+        if (emailVerified) {
+          setActiveStep(prev => prev + 1);
+        } else {
+          // Send OTP for email verification
+          handleSendOtp();
+        }
+      } else if (activeStep < steps.length - 1) {
         setActiveStep(prev => prev + 1);
       } else {
         handleSubmit();
@@ -199,33 +284,46 @@ export default function RegisterPage() {
     setErrors({});
 
     try {
-      // Prepare data for backend
       const registrationData = {
         email: formData.email.trim().toLowerCase(),
         password: formData.password,
         full_name: formData.full_name.trim(),
         gender: formData.gender,
         mobile_no: formData.mobile_no.trim(),
-        signup_type: "e", // Email signup type
+        signup_type: "e", 
       };
 
       // Call backend API
       const response = await authAPI.register(registrationData);
       
       if (response.data.success) {
-        // Store tokens if returned
-        if (response.data.data?.access_token) {
-          localStorage.setItem("access_token", response.data.data.access_token);
-        }
-        if (response.data.data?.refresh_token) {
-          localStorage.setItem("refresh_token", response.data.data.refresh_token);
-        }
+              if (response.data.requiresOtp) {
+                setPendingRegistration({
+                  userId: response.data.data.user_id,
+                  email: response.data.data.email,
+                  tempToken: response.data.data.temp_token,
+                });
+                setOtpModalOpen(true);
+                setLoading(false);
+              } else {
+                // Direct registration (no OTP required)
+                handleRegistrationSuccess(response.data);
+              }
+            }
+          // } catch (error) {
+      //   // Store tokens if returned
+      //   if (response.data.data?.access_token) {
+      //     localStorage.setItem("access_token", response.data.data.access_token);
+      //   }
+      //   if (response.data.data?.refresh_token) {
+      //     localStorage.setItem("refresh_token", response.data.data.refresh_token);
+      //   }
         
-        setSuccess(true);
-        setTimeout(() => {
-          navigate("/company-registration");
-        }, 2000);
-      }
+      //   setSuccess(true);
+      //   setTimeout(() => {
+      //     navigate("/company-registration");
+      //   }, 2000);
+      // }
     } catch (error) {
       console.error("Registration Error:", error);
       
@@ -284,6 +382,110 @@ export default function RegisterPage() {
       }
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Handle OTP verification for registration
+  const handleOtpVerify = async (otpCode) => {
+    if (!pendingRegistration?.email || !pendingRegistration?.temp_token) {
+      toast.error("Missing verification data. Please try again.");
+      return;
+    }
+    
+    try {
+      const response = await authAPI.verifyRegistrationOtp({
+        email: pendingRegistration.email,
+        otp: otpCode,
+        temp_token: pendingRegistration.temp_token,
+      });
+      
+      if (response.data.success) {
+        // Mark email as verified
+        setEmailVerified(true);
+        if (response.data?.data?.verification_token) {
+          setVerificationToken(response.data.data.verification_token);
+        }
+        setOtpModalOpen(false);
+        toast.success("✅ Email verified successfully!");
+        
+        // Automatically proceed to next step (Confirmation)
+        setActiveStep(2);
+      }
+    } catch (error) {
+      console.error("OTP Verification Error:", error);
+      const errorMessage = error.response?.data?.message || 
+                          error.response?.data?.errors?.general?.[0] ||
+                          error.response?.data?.errors?.general ||
+                          error.response?.data?.errors?.otp?.[0] ||
+                          error.response?.data?.errors?.temp_token?.[0] ||
+                          "Invalid OTP. Please try again.";
+      toast.error(errorMessage);
+      throw error; // Re-throw so VerifyOtpPopup can handle it
+    }
+  };
+
+  // Handle OTP resend
+  const handleOtpResend = async () => {
+    if (!pendingRegistration?.email) {
+      toast.error("Email not found. Please try again.");
+      return;
+    }
+    
+    try {
+      // Resend OTP with current form data
+      const response = await authAPI.sendRegistrationOtp({
+        email: pendingRegistration.email,
+        password: formData.password,
+        full_name: formData.full_name.trim(),
+        mobile_no: formData.mobile_no.trim(),
+        gender: formData.gender,
+      });
+      
+      if (response.data.success) {
+        setPendingRegistration(prev => ({
+          ...prev,
+          temp_token: response.data.data.temp_token,
+          user_id: response.data.data.user_id,
+        }));
+        toast.success("📧 New OTP sent to your email!");
+      }
+    } catch (error) {
+      console.error("Resend OTP Error:", error);
+      toast.error(error.response?.data?.message || "Failed to resend OTP. Please try again.");
+    }
+  };
+
+  // Close OTP modal
+  const handleOtpModalClose = () => {
+    setOtpModalOpen(false);
+    // Don't clear pendingRegistration - user might want to resend OTP
+    // Only clear if email is verified
+    if (emailVerified) {
+      setPendingRegistration(null);
+    }
+  };
+
+  // Handle successful registration
+  const handleRegistrationSuccess = (data) => {
+    if (data.success && data.data) {
+      // Store tokens
+      if (data.data.access_token) {
+        localStorage.setItem("access_token", data.data.access_token);
+      }
+      if (data.data.refresh_token) {
+        localStorage.setItem("refresh_token", data.data.refresh_token);
+      }
+      if (data.data.user) {
+        localStorage.setItem("user", JSON.stringify(data.data.user));
+      }
+      
+      setSuccess(true);
+      toast.success("🎉 Registration successful! Redirecting...");
+      
+      // Redirect to company registration after a delay
+      setTimeout(() => {
+        navigate("/company-registration");
+      }, 2000);
     }
   };
 
@@ -408,8 +610,15 @@ export default function RegisterPage() {
         Account Details
       </Typography>
       <Typography variant="body2" color="text.secondary" paragraph>
-        Set up your login credentials.
+        Set up your login credentials. We'll verify your email before proceeding.
       </Typography>
+      
+      {/* Email Verification Status */}
+      {emailVerified && (
+        <Alert severity="success" sx={{ mb: 2 }}>
+          ✅ Email verified successfully! You can proceed to the next step.
+        </Alert>
+      )}
       
       <Grid container spacing={3}>
         <Grid item xs={12}>
@@ -419,18 +628,26 @@ export default function RegisterPage() {
             name="email"
             type="email"
             value={formData.email}
-            onChange={handleChange("email")}
+            onChange={(e) => {
+              handleChange("email")(e);
+              // Reset verification status if email changes
+              if (emailVerified) {
+                setEmailVerified(false);
+                setVerificationToken(null);
+              }
+            }}
             error={!!errors.email}
-            helperText={errors.email}
+            helperText={errors.email || (emailVerified ? "Email verified ✓" : "We'll send a verification code to this email")}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
-                  <Email color="action" />
+                  <Email color={emailVerified ? "success" : "action"} />
                 </InputAdornment>
               ),
             }}
             variant="outlined"
             required
+            disabled={emailVerified}
           />
         </Grid>
         
@@ -540,6 +757,28 @@ export default function RegisterPage() {
   );
 
   // Success state
+  if (registrationSuccess) {
+    return (
+      <Container component="main" maxWidth="sm">
+        <StyledPaper>
+          <Box sx={{ textAlign: "center", py: 4 }}>
+            <CheckCircle sx={{ fontSize: 64, color: "success.main", mb: 2 }} />
+            <Typography variant="h5" gutterBottom>
+              Registration Verified!
+            </Typography>
+            <Typography variant="body1" color="text.secondary" paragraph>
+              Your email has been verified successfully.
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              Redirecting to company registration...
+            </Typography>
+            <CircularProgress size={24} sx={{ mt: 2 }} />
+          </Box>
+        </StyledPaper>
+      </Container>
+    );
+  }
+
   if (success) {
     return (
       <Container component="main" maxWidth="sm">
@@ -622,13 +861,15 @@ export default function RegisterPage() {
             <Button
               variant="contained"
               onClick={handleNext}
-              disabled={loading}
+              required={loading || sendingOtp || (activeStep === 1 && !emailVerified)}
               sx={{ minWidth: 120 }}
             >
-              {loading ? (
+              {loading || sendingOtp ? (
                 <CircularProgress size={24} />
               ) : activeStep === steps.length - 1 ? (
                 "Register"
+              ) : activeStep === 1 && !emailVerified ? (
+                "Verify Email"
               ) : (
                 "Next"
               )}
@@ -654,6 +895,20 @@ export default function RegisterPage() {
           </Typography>
         </Box>
       </StyledPaper>
+
+    <VerifyOtpPopup
+      open={otpModalOpen}
+      onClose={() => {
+        setOtpModalOpen(false);
+        // Don't clear pendingRegistration - user might want to resend
+      }}
+      onVerify={handleOtpVerify}
+      onResend={handleOtpResend}
+      email={pendingRegistration?.email}
+      context="registration"
+      loading={false}
+      resendLoading={sendingOtp}
+    />
     </Container>
   );
-}
+}   

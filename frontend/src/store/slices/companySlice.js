@@ -6,7 +6,7 @@ export const registerCompany = createAsyncThunk(
   async (payload, { rejectWithValue }) => {
     try {
       const res = await companyService.register(payload);
-      return res.company || res;
+      return res?.data || res?.company || res;
     } catch (err) {
       return rejectWithValue(
         err.response?.data?.error || err.message || "Registration failed"
@@ -20,7 +20,7 @@ export const fetchCompanyProfile = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const res = await companyService.getProfile();
-      return res.company || res;
+      return res?.data || res?.company || res;
     } catch (err) {
       return rejectWithValue(
         err.response?.data?.error || err.message || "Fetch failed"
@@ -34,7 +34,7 @@ export const updateCompany = createAsyncThunk(
   async (payload, { rejectWithValue }) => {
     try {
       const res = await companyService.updateProfile(payload);
-      return res.company || res;
+      return res?.data || res?.company || res;
     } catch (err) {
       return rejectWithValue(
         err.response?.data?.error || err.message || "Update failed"
