@@ -26,3 +26,6 @@ django-extensions==3.2.3
 
 gunicorn==22.0.0
 setuptools==69.0.0
+
+django-sendgrid-v5
+sendgrid
