@@ -273,12 +273,17 @@ if not DEBUG:
     X_FRAME_OPTIONS = 'DENY'
 
 
-EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-EMAIL_HOST = "smtp.gmail.com"
-EMAIL_PORT = 465
-EMAIL_USE_TLS = False
-EMAIL_USE_SSL = True
-EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER", default='')
-EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD", default='')
+# EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+# EMAIL_HOST = "smtp.gmail.com"
+# EMAIL_PORT = 465
+# EMAIL_USE_TLS = False
+# EMAIL_USE_SSL = True
+# EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER", default='')
+# EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD", default='')
+# DEFAULT_FROM_EMAIL = f"Company Portal <{EMAIL_HOST_USER if EMAIL_HOST_USER else 'noreply@company.com'}>"
+# EMAIL_TIMEOUT =90  
+
+EMAIL_BACKEND = "sendgrid_backend.SendgridBackend"
+SENDGRID_API_KEY = os.getenv("SENDGRID_API_KEY")
 DEFAULT_FROM_EMAIL = f"Company Portal <{EMAIL_HOST_USER if EMAIL_HOST_USER else 'noreply@company.com'}>"
 EMAIL_TIMEOUT =90  
