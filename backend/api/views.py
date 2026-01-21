@@ -1,4 +1,5 @@
 import email
+import traceback
 from django.shortcuts import render,HttpResponse
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -75,6 +76,7 @@ def send_otp_email(user_email, otp_code, purpose="Login"):
         return True
     except Exception as e:
         print(f"❌ Failed to send OTP email: {str(e)}")
+        traceback.print_exc()
         return False
 
 
