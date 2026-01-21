@@ -285,5 +285,5 @@ if not DEBUG:
 
 EMAIL_BACKEND = "sendgrid_backend.SendgridBackend"
 SENDGRID_API_KEY = os.getenv("SENDGRID_API_KEY")
-DEFAULT_FROM_EMAIL = f"Company Portal <{EMAIL_HOST_USER if EMAIL_HOST_USER else 'noreply@company.com'}>"
+DEFAULT_FROM_EMAIL = "Company Portal <noreply@sendgrid.net>"
 EMAIL_TIMEOUT =90  
